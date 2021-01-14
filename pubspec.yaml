@@ -21,6 +21,10 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
+  path_provider: ^1.6.27
+  http: ^0.12.2
+  flutter_local_notifications: ^3.0.3
+  firebase_messaging: ^7.0.3
   timeago: ^2.0.29
   intl: ^0.16.1
   firebase_storage: ^5.2.0

@@ -9,6 +9,7 @@ import 'package:canli_sohbet_app/services/fake_auth_service.dart';
 import 'package:canli_sohbet_app/services/firebase_auth_service.dart';
 import 'package:canli_sohbet_app/services/firebase_storage_service.dart';
 import 'package:canli_sohbet_app/services/firestore_db_service.dart';
+import 'package:canli_sohbet_app/services/notification_service.dart';
 import 'package:flutter/material.dart';
 
 enum AppMode {DEBUG, RELEASE}
@@ -19,10 +20,12 @@ class UserRepository implements AuthBase{
   FakeAuthServices _fakeAuthServices = locator<FakeAuthServices>();
   FirestoreDbService _firestoreDbService = locator<FirestoreDbService>();
   FirebaseStorageService _firebaseStorageService = locator<FirebaseStorageService>();
+  NotificationService _notificationService = locator<NotificationService>();
 
   AppMode appMode = AppMode.RELEASE;
 
   List<UserModel> allUsers = [];
+  Map<String, String> userTokenList = Map<String, String>();
 
   @override
   Future<UserModel> currentUser() async{
@@ -30,7 +33,8 @@ class UserRepository implements AuthBase{
       return await _fakeAuthServices.currentUser();
     }else{
       UserModel _user = await _firebaseAuthService.currentUser();
-      return await _firestoreDbService.readUser(_user.userID);
+      if(_user != null) return await _firestoreDbService.readUser(_user.userID);
+      else return null;
     }
   }
 
@@ -59,11 +63,17 @@ class UserRepository implements AuthBase{
       return await _fakeAuthServices.signInWithGoogle();
     }else{
       UserModel _user = await _firebaseAuthService.signInWithGoogle();
-      bool result = await _firestoreDbService.saveUser(_user);
-      if(result){
-        //auth ile gelen user'ı değil firestore'a kaydettiğim user'ı return etmek istiyorum
-        return await _firestoreDbService.readUser(_user.userID);
-      }else return null;
+      if(_user != null){
+        bool result = await _firestoreDbService.saveUser(_user);
+        if(result){
+          //auth ile gelen user'ı değil firestore'a kaydettiğim user'ı return etmek istiyorum
+          return await _firestoreDbService.readUser(_user.userID);
+        }else{
+          await _firebaseAuthService.signOut();
+          return null;
+        }
+      }
+      else return null;
     }
   }
 
@@ -145,7 +155,22 @@ class UserRepository implements AuthBase{
     if(appMode == AppMode.DEBUG){
       return true;
     }else {
-      return await _firestoreDbService.saveMessage(messageToBeSaved,typedUser,currentUser);
+      bool result =  await _firestoreDbService.saveMessage(messageToBeSaved,typedUser,currentUser);
+      if(result){
+        var token = "";
+        if(userTokenList.containsKey(messageToBeSaved.toUser)){
+          token = userTokenList[messageToBeSaved.toUser];
+          print("Localden geldi : $token");
+        }else{
+          token = await _firestoreDbService.getToken(messageToBeSaved.toUser);
+          if(token != null)
+          userTokenList[messageToBeSaved.toUser] = token;
+          print("Veritabanından geldi : $token");
+        }
+        if(token != null)
+        await _notificationService.sendNotification(messageToBeSaved, currentUser, token);
+        return true;
+      }else return false;
     }
   }
 

@@ -10,18 +10,21 @@ class FirestoreDbService implements DbBase {
 
   @override
   Future<bool> saveUser(UserModel user) async {
-    /*Map _userMapToAdd = user.toMap();
-    _userMapToAdd['createdAt'] = FieldValue.serverTimestamp();
-    _userMapToAdd['updatedAt'] = FieldValue.serverTimestamp();*/
-
-    await _firestore.collection("users").doc(user.userID).set(user.toMap());
 
     DocumentSnapshot _readUser =
-        await _firestore.doc("users/${user.userID}").get();
-    Map _userInformationMapRead = _readUser.data();
+    await _firestore.doc("users/${user.userID}").get();
+
+    if( _readUser.data() == null){
+      await _firestore.collection("users").doc(user.userID).set(user.toMap());
+      return true;
+    }else{
+      return true;
+    }
+
+    /*Map _userInformationMapRead = _readUser.data();
     UserModel _readUserModel = UserModel.fromMap(_userInformationMapRead);
-    print("Okunan User Nesnesi : " + _readUserModel.toString());
-    return true;
+    print("Okunan User Nesnesi : " + _readUserModel.toString());*/
+
   }
 
   @override
@@ -242,5 +245,11 @@ class FirestoreDbService implements DbBase {
 
     return allMessages;
 
+  }
+
+  Future<String> getToken(String toUser) async{
+    DocumentSnapshot snapshot = await _firestore.doc("tokens/$toUser").get();
+    if(snapshot != null) return snapshot.data()["token"];
+    else return null;
   }
 }

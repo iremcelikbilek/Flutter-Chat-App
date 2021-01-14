@@ -40,8 +40,8 @@ class _EmailSifreLoginPageState extends State<EmailSifreLoginPage> {
     }*/
 
     if (_userViewModel.userModel != null) {
-      Future.delayed(Duration(milliseconds: 10), () {
-        Navigator.of(context).pop();
+      Future.delayed(Duration(milliseconds: 1), () {
+        Navigator.of(context).popUntil(ModalRoute.withName("/"));
       });
     }
 

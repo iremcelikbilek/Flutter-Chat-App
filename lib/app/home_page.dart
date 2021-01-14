@@ -3,8 +3,8 @@ import 'package:canli_sohbet_app/app/my_chat_page.dart';
 import 'package:canli_sohbet_app/app/profile_page.dart';
 import 'package:canli_sohbet_app/app/tab_items.dart';
 import 'package:canli_sohbet_app/app/users_page.dart';
+import 'package:canli_sohbet_app/notification_handler.dart';
 import 'package:canli_sohbet_app/view-models/all_users_view_model.dart';
-import 'package:canli_sohbet_app/view-models/user_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -17,6 +17,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
   TabItem _currentTab = TabItem.Users;
   Map<TabItem, Widget> allPages() {
     return {
@@ -34,6 +35,12 @@ class _HomePageState extends State<HomePage> {
     TabItem.MyChat : GlobalKey<NavigatorState>(),
     TabItem.Profile: GlobalKey<NavigatorState>(), // Yeni nesne
   };
+
+  @override
+  void initState() {
+    super.initState();
+    NotificationHandler().initializeFCMNotification(context);
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -70,7 +70,7 @@ class SignInPage extends StatelessWidget {
   void _signInWithGoogle(BuildContext context) async {
     final _userViewModel = Provider.of<UserViewModel>(context, listen: false);
     UserModel _user = await _userViewModel.signInWithGoogle();
-    //debugPrint("Oturum Açan Google User: ${_user.userID}");
+    if(_user != null) debugPrint("Oturum Açan Google User: ${_user.userID}");
   }
 
   void _signInWithEmailPassword(BuildContext context) {

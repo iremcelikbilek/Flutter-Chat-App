@@ -55,7 +55,8 @@ class UserViewModel with ChangeNotifier implements AuthBase{
     try{
       viewState = ViewState.BUSY;
       _userModel = await _userRepository.currentUser();
-      return _userModel;
+      if(_userModel != null) return _userModel;
+      else return null;
     }catch(e){
       debugPrint("ViewModel Current User Metodunda Hata : $e");
       return null;
@@ -97,7 +98,8 @@ class UserViewModel with ChangeNotifier implements AuthBase{
     try{
       viewState = ViewState.BUSY;
       _userModel = await _userRepository.signInWithGoogle();
-      return _userModel;
+      if(_userModel != null) return _userModel;
+      else return null;
     }catch(e){
       debugPrint("ViewModel SignInWithGoogle Metodunda Hata : $e");
       return null;
