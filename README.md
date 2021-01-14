@@ -6,7 +6,7 @@
 - [x] Firebase Storage
 - [x] State Management with Provider
 - [x] Pagination
-- [x] Push Notification
+- [x] Push Notification (Firebase Cloud Messaging)
 
 ------------
 
